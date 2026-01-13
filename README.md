@@ -180,7 +180,19 @@ uv sync
 
 ### Quick Start
 
-**Ubuntu:**
+**Using uv (Recommended):**
+
+This works on all platforms (Linux, macOS, Windows) and automatically handles the environment.
+
+```bash
+uv run SeedlingNew.py
+```
+
+**Standard Python (Alternative):**
+
+If you prefer manual activation:
+
+**Ubuntu/Linux/macOS:**
 
 ```bash
 # Activate your environment
@@ -314,7 +326,7 @@ Runs all three steps sequentially on one TIF stack.
 ### Example Session
 
 ```bash
-$ python SeedlingNew.py
+$ uv run SeedlingNew.py
 
 ======================================================================
 SEEDLING TRACKING PIPELINE
@@ -563,21 +575,6 @@ uv pip install openpyxl
 
 ## Advanced Usage
 
-### Using with uv run
-
-Add to your `pyproject.toml`:
-
-```toml
-[project.scripts]
-seedling = "SeedlingNew:main"
-```
-
-Then run:
-
-```bash
-uv run seedling
-```
-
 ### Processing Multiple Files
 
 ```bash
@@ -586,7 +583,7 @@ uv run seedling
 
 for tif in 1_Data/*.tif; do
     echo "Processing $tif"
-    python SeedlingNew.py << EOF
+    uv run SeedlingNew.py << EOF
 1
 EOF
 done

@@ -7,7 +7,7 @@ This script generates a synthetic TIF stack to test the Seedling Tracker pipelin
 It creates a multi-frame TIF file in the '1_Data' folder simulating a growing seedling.
 
 Usage:
-    python generate_sample_data.py
+    uv run generate_sample_data.py
 """
 
 import numpy as np
@@ -62,7 +62,7 @@ def generate_dummy_tif(filename="dummy.tif", num_frames=5, width=512, height=512
     # Save using tifffile
     tifffile.imwrite(output_path, stack)
     print(f"✓ Saved to {output_path}")
-    print("You can now run 'SeedlingNew.py' and select this file in Step 1.")
+    print("You can now run 'uv run SeedlingNew.py' and select this file in Step 1.")
 
 if __name__ == "__main__":
     generate_dummy_tif()
