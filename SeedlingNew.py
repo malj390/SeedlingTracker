@@ -4,14 +4,14 @@ Seedling Tracking Pipeline
 ============================
 
 Simplified workflow for processing time-lapse TIF stacks of seedlings:
-- Step 1: Load TIF stack from Data/, align timeframes, save to Processed/
-- Step 2: User draws rectangles to separate seedlings, save to Processed/
-- Step 3: User tracks growth points, calculate metrics, save to Results/
+- Step 1: Load TIF stack from 1_Data/, align timeframes, save to 2_Processed/
+- Step 2: User draws rectangles to separate seedlings, save to 2_Processed/
+- Step 3: User tracks growth points, calculate metrics, save to 3_Results/
 
 Folder structure:
-    Data/       - Raw TIF stacks (input)
-    Processed/  - Aligned stacks and separated seedlings
-    Results/    - Excel files with tracking data and plots
+    1_Data/       - Raw TIF stacks (input)
+    2_Processed/  - Aligned stacks and separated seedlings
+    3_Results/    - Excel files with tracking data and plots
 
 Author: Miguel
 Version: 5.0 (Simplified)
@@ -57,7 +57,7 @@ except ImportError:
 
 def setup_folders(base_path: Path) -> Tuple[Path, Path, Path]:
     """
-    Create Data/, Processed/, and Results/ folders if they don't exist.
+    Create 1_Data/, 2_Processed/, and 3_Results/ folders if they don't exist.
     
     Args:
         base_path: Base directory (project root)
@@ -65,9 +65,9 @@ def setup_folders(base_path: Path) -> Tuple[Path, Path, Path]:
     Returns:
         Tuple of (data_folder, processed_folder, results_folder)
     """
-    data_folder = base_path / "Data"
-    processed_folder = base_path / "Processed"
-    results_folder = base_path / "Results"
+    data_folder = base_path / "1_Data"
+    processed_folder = base_path / "2_Processed"
+    results_folder = base_path / "3_Results"
     
     data_folder.mkdir(exist_ok=True)
     processed_folder.mkdir(exist_ok=True)
@@ -132,7 +132,7 @@ def shift_image(im: np.ndarray, shift: List[int]) -> np.ndarray:
 def load_and_align_stack(tif_path: Path, processed_folder: Path, 
                         reference_frame: int = 0) -> Tuple[Path, np.ndarray]:
     """
-    Load a TIF stack, align all frames to a reference, and save to Processed/.
+    Load a TIF stack, align all frames to a reference, and save to 2_Processed/.
     
     Args:
         tif_path: Path to input TIF stack
@@ -218,6 +218,13 @@ def separate_seedlings_interactive(aligned_stack: np.ndarray, aligned_path: Path
     print("  1. Use the 'Shapes' layer to draw rectangles around each seedling")
     print("  2. Draw ONE rectangle per seedling")
     print("  3. Close the viewer when done")
+    print("\nNavigation:")
+    print("  - Pan: Click and drag with mouse (or press/hold Space + drag)")
+    print("  - Zoom: Scroll wheel up/down")
+    print("  - Draw rectangle: Click and drag (tool is selected by default)")
+    print("  - Select/Move rectangles: Press 'D' to switch to select mode")
+    print("  - Delete rectangles: Select shape and press Delete/Backspace")
+    print("  - Draw new rectangle: Press 'R' to switch back to rectangle mode")
     print()
     
     # Show max projection or middle frame for reference
@@ -233,6 +240,8 @@ def separate_seedlings_interactive(aligned_stack: np.ndarray, aligned_path: Path
         edge_width=3,
         face_color='transparent'
     )
+    # Set rectangle tool as default
+    shapes_layer.mode = 'add_rectangle'
     
     napari.run()
     
@@ -265,7 +274,7 @@ def separate_seedlings_interactive(aligned_stack: np.ndarray, aligned_path: Path
         tifffile.imwrite(output_path, seedling_stack.astype(aligned_stack.dtype))
         seedling_paths.append(output_path)
     
-    print(f"\n✓ Step 2 complete! Saved {len(seedling_paths)} seedlings to Processed/")
+    print(f"\n✓ Step 2 complete! Saved {len(seedling_paths)} seedlings to 2_Processed/")
     return seedling_paths
 
 
@@ -314,6 +323,13 @@ def track_seedling_interactive(seedling_path: Path, results_folder: Path,
     print("  2. Points should track a consistent landmark (e.g., root tip, shoot apex)")
     print("  3. Work through frames in order (frame 0, 1, 2, ...)")
     print("  4. Close the viewer when done")
+    print("\nNavigation:")
+    print("  - Pan: Click and drag with mouse (or press/hold Space + drag)")
+    print("  - Zoom: Scroll wheel up/down")
+    print("  - Add points: Tool is selected by default (or press '2')")
+    print("  - Move/Select points: Press '3' to switch to select mode")
+    print("  - Delete points: Select point(s) and press Delete/Backspace")
+    print("  - Switch back to add mode: Press '2'")
     print()
     
     viewer = napari.Viewer()
@@ -325,6 +341,8 @@ def track_seedling_interactive(seedling_path: Path, results_folder: Path,
         size=5,
         ndim=3
     )
+    # Set add points tool as default
+    points_layer.mode = 'add'
     
     napari.run()
     

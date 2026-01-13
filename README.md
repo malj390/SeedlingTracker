@@ -6,9 +6,9 @@ A streamlined Python script for processing time-lapse TIF stacks of seedlings an
 
 This simplified pipeline processes TIF stacks containing multiple seedlings over time:
 
-- **Step 1**: Load TIF stack, align all timeframes, save to `Processed/`
-- **Step 2**: User draws rectangles to separate individual seedlings, save to `Processed/`
-- **Step 3**: User tracks growth by clicking points in each timeframe, save results to `Results/`
+- **Step 1**: Load TIF stack, align all timeframes, save to `2_Processed/`
+- **Step 2**: User draws rectangles to separate individual seedlings, save to `2_Processed/`
+- **Step 3**: User tracks growth by clicking points in each timeframe, save results to `3_Results/`
 
 ## Features
 
@@ -49,55 +49,156 @@ The script expects and creates the following folder structure:
 
 ```
 YourProject/
-├── Data/           # Place your raw TIF stacks here (INPUT)
-├── Processed/      # Aligned stacks and separated seedlings (AUTO-CREATED)
-├── Results/        # Excel files and plots (AUTO-CREATED)
+├── 1_Data/         # Place your raw TIF stacks here (INPUT)
+├── 2_Processed/    # Aligned stacks and separated seedlings (AUTO-CREATED)
+├── 3_Results/      # Excel files and plots (AUTO-CREATED)
 └── SeedlingNew.py  # The script
 ```
 
 ## Installation
 
-### Using uv (Recommended)
+### Ubuntu (Linux)
+
+#### One-Step Installation (Fastest)
+
+If you have `uv` installed, you can set up the entire environment with a single command:
 
 ```bash
-# Install uv if you haven't already
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Navigate to project directory
-cd /path/to/your/project
-
-# Create and activate virtual environment
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install dependencies
-uv pip install numpy pandas matplotlib scikit-image scipy tifffile tqdm "napari[all]" openpyxl
+uv sync
+source .venv/bin/activate
 ```
 
-### Using pip
+#### Manual Installation with uv
 
-```bash
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+1. **Install uv** (if not already installed):
+   
+   ```bash
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   ```
 
-# Install dependencies
-pip install numpy pandas matplotlib scikit-image scipy tifffile tqdm "napari[all]" openpyxl
+2. **Navigate to project directory:**
+   
+   ```bash
+   cd /path/to/your/project
+   ```
+
+3. **Create and activate virtual environment:**
+   
+   ```bash
+   uv venv
+   source .venv/bin/activate
+   ```
+
+4. **Install dependencies:**
+   
+   ```bash
+   uv pip install numpy pandas matplotlib scikit-image scipy tifffile tqdm "napari[all]" openpyxl
+   ```
+
+#### Using pip
+
+1. **Navigate to project directory:**
+   
+   ```bash
+   cd /path/to/your/project
+   ```
+
+2. **Create virtual environment:**
+   
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+3. **Install dependencies:**
+   
+   ```bash
+   pip install numpy pandas matplotlib scikit-image scipy tifffile tqdm "napari[all]" openpyxl
+   ```
+
+### Windows
+
+#### One-Step Installation (Fastest)
+
+If you have `uv` installed, you can set up the entire environment with a single command:
+
+```powershell
+uv sync
+.venv\Scripts\activate
 ```
+
+#### Manual Installation with uv
+
+1. **Install uv** (if not already installed):
+   Open PowerShell and run:
+   
+   ```powershell
+   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+   ```
+
+2. **Navigate to project directory:**
+   
+   ```powershell
+   cd \path\to\your\project
+   ```
+
+3. **Create and activate virtual environment:**
+   
+   ```powershell
+   uv venv
+   .venv\Scripts\activate
+   ```
+
+4. **Install dependencies:**
+   
+   ```powershell
+   uv pip install numpy pandas matplotlib scikit-image scipy tifffile tqdm "napari[all]" openpyxl
+   ```
+
+#### Using pip
+
+1. **Navigate to project directory:**
+   
+   ```powershell
+   cd \path\to\your\project
+   ```
+
+2. **Create virtual environment:**
+   
+   ```powershell
+   python -m venv .venv
+   .venv\Scripts\activate
+   ```
+
+3. **Install dependencies:**
+   
+   ```powershell
+   pip install numpy pandas matplotlib scikit-image scipy tifffile tqdm "napari[all]" openpyxl
+   ```
 
 ## Usage
 
 ### Quick Start
 
+**Ubuntu:**
+
 ```bash
 # Activate your environment
-source .venv/bin/activate  # Or: On Windows: .venv\Scripts\activate
+source .venv/bin/activate
 
 # Run the script
 python SeedlingNew.py
 ```
 
-The script will present a menu:
+**Windows:**
+
+```powershell
+# Activate your environment
+.venv\Scripts\activate
+
+# Run the script
+python SeedlingNew.py
+```
 
 The script will present a menu:
 
@@ -115,21 +216,21 @@ SELECT WORKFLOW:
 
 #### Option 1: Load and Align TIF Stack
 
-Loads a TIF stack from `Data/` and aligns all timeframes.
+Loads a TIF stack from `1_Data/` and aligns all timeframes.
 
 ```bash
 # Select option 1
-# Browse to select your TIF stack from Data/ folder
-# Script will save: Processed/{filename}_aligned.tif
+# Browse to select your TIF stack from 1_Data/ folder
+# Script will save: 2_Processed/{filename}_aligned.tif
 ```
 
 **What it does:**
 
-1. Prompts you to select a TIF file from `Data/`
+1. Prompts you to select a TIF file from `1_Data/`
 2. Detects if stack is 3D (t, y, x) or 4D (t, y, x, channels)
 3. Uses frame 0 as reference for alignment
 4. Aligns all other frames using phase cross-correlation
-5. Saves aligned stack to `Processed/`
+5. Saves aligned stack to `2_Processed/`
 
 ---
 
@@ -139,7 +240,7 @@ Opens napari to draw rectangles around seedlings in an aligned stack.
 
 ```bash
 # Select option 2
-# Browse to select an aligned TIF from Processed/
+# Browse to select an aligned TIF from 2_Processed/
 # Draw rectangles in napari
 # Close napari when done
 ```
@@ -155,7 +256,7 @@ Opens napari to draw rectangles around seedlings in an aligned stack.
 
 1. Opens napari with max projection and timeseries
 2. Extracts each rectangle region
-3. Saves separate TIF files: `Processed/{filename}_aligned_seedling_1.tif`, etc.
+3. Saves separate TIF files: `2_Processed/{filename}_aligned_seedling_1.tif`, etc.
 
 ---
 
@@ -165,7 +266,7 @@ Opens napari to track growth by clicking points in each timeframe.
 
 ```bash
 # Select option 3
-# Browse to select a seedling TIF from Processed/
+# Browse to select a seedling TIF from 2_Processed/
 # Enter pixel size (e.g., 0.036 mm)
 # Choose whether to use edge enhancement (recommended: y)
 # Click tracking points in napari
@@ -185,8 +286,8 @@ Opens napari to track growth by clicking points in each timeframe.
 2. Optionally applies Sobel edge enhancement
 3. Rotates image 90° for lateral view
 4. Calculates angles and distances between consecutive points
-5. Saves Excel file: `Results/{seedling_name}.xlsx`
-6. Creates plots: `Results/{seedling_name}_tracking.png` and `.svg`
+5. Saves Excel file: `3_Results/{seedling_name}.xlsx`
+6. Creates plots: `3_Results/{seedling_name}_tracking.png` and `.svg`
 
 **Excel Output:**
 
@@ -202,7 +303,7 @@ Runs all three steps sequentially on one TIF stack.
 ```bash
 # Select option 4
 # Follow prompts for each step:
-#   1. Select TIF from Data/
+#   1. Select TIF from 1_Data/
 #   2. Draw rectangles in napari
 #   3. Enter pixel size
 #   4. Track each seedling in napari
@@ -220,9 +321,9 @@ SEEDLING TRACKING PIPELINE
 ======================================================================
 
 Folder structure:
-  Data:      /path/to/project/Data
-  Processed: /path/to/project/Processed
-  Results:   /path/to/project/Results
+  Data:      /path/to/project/1_Data
+  Processed: /path/to/project/2_Processed
+  Results:   /path/to/project/3_Results
 
 ======================================================================
 SELECT WORKFLOW:
@@ -238,14 +339,14 @@ Enter choice (1-4): 4
 RUNNING FULL PIPELINE
 ======================================================================
 
-Select TIF stack from Data/ folder...
-# [File dialog opens - select P1_D2017_Trial.tif]
+Select TIF stack from 1_Data/ folder...
+# [File dialog opens - select Exp_Plate.tif]
 
 ======================================================================
 STEP 1: LOADING AND ALIGNING TIF STACK
 ======================================================================
 
-Loading: P1_D2017_Trial.tif
+Loading: Exp_Plate.tif
 Stack shape: (50, 1024, 1024)
 Data type: uint8
 Number of timeframes: 50
@@ -253,7 +354,7 @@ Number of timeframes: 50
 Aligning all frames to frame 0...
 Aligning: 100%|████████████████████| 50/50 [00:15<00:00,  3.2it/s]
 
-Saving aligned stack to: P1_D2017_Trial_aligned.tif
+Saving aligned stack to: Exp_Plate_aligned.tif
 ✓ Step 1 complete!
 
 ======================================================================
@@ -275,16 +376,16 @@ Found 3 seedlings
   Seedling 2: y=[100:300], x=[250:400]
   Seedling 3: y=[350:550], x=[50:200]
 
-✓ Step 2 complete! Saved 3 seedlings to Processed/
+✓ Step 2 complete! Saved 3 seedlings to 2_Processed/
 
 Enter pixel size in mm (default 0.036): 0.036
 Use edge enhancement? (y/n, default y): y
 
 ======================================================================
-STEP 3: TRACKING SEEDLING - P1_D2017_Trial_aligned_seedling_1
+STEP 3: TRACKING SEEDLING - Exp_Plate_aligned_seedling_1
 ======================================================================
 
-Loading: P1_D2017_Trial_aligned_seedling_1.tif
+Loading: Exp_Plate_aligned_seedling_1.tif
 Applying Sobel edge enhancement...
 
 Opening napari viewer...
@@ -294,9 +395,9 @@ Opening napari viewer...
 Tracked 50 points
 Calculating growth metrics...
 
-Saving results to: P1_D2017_Trial_aligned_seedling_1.xlsx
+Saving results to: Exp_Plate_aligned_seedling_1.xlsx
 Creating visualization...
-✓ Step 3 complete for P1_D2017_Trial_aligned_seedling_1!
+✓ Step 3 complete for Exp_Plate_aligned_seedling_1!
 
 # [Repeats for seedling_2 and seedling_3]
 
@@ -312,14 +413,14 @@ Creating visualization...
 ### After Step 1 (Alignment):
 
 ```
-Processed/
+2_Processed/
 └── {original_name}_aligned.tif
 ```
 
 ### After Step 2 (Separation):
 
 ```
-Processed/
+2_Processed/
 ├── {original_name}_aligned.tif
 ├── {original_name}_aligned_seedling_1.tif
 ├── {original_name}_aligned_seedling_2.tif
@@ -329,7 +430,7 @@ Processed/
 ### After Step 3 (Tracking):
 
 ```
-Results/
+3_Results/
 ├── {seedling_name}.xlsx
 ├── {seedling_name}_tracking.png
 └── {seedling_name}_tracking.svg
@@ -359,6 +460,23 @@ Results/
 - You can draw rectangles in any order
 - The max projection helps identify where seedlings are located
 
+#### napari Rectangle Tool
+
+The **Rectangle** tool is selected by default when the separation window opens. Here's how to use it:
+
+- **Pan/Move Image**: Click and drag with the mouse (or hold Space + drag)
+- **Zoom In/Out**: Use the scroll wheel (up = zoom in, down = zoom out)
+- **Draw Rectangle**: Click and drag to create a rectangle (tool is active by default)
+  - Keyboard shortcut: Press `R` to reactivate rectangle mode
+- **Select/Edit Rectangles**: Press `D` to switch to direct/select mode
+  - Click on a rectangle to select it
+  - Drag corners or edges to resize
+  - Drag the center to move the entire rectangle
+  - Press Delete or Backspace to remove selected rectangles
+- **Switch Between Tools**: Use keyboard shortcuts `R` (rectangle) and `D` (select) to switch between modes
+
+**Workflow tip**: Use the max projection view to identify all seedlings first, then draw rectangles around each one. You can zoom/pan and switch between drawing and selecting as needed.
+
 ### Tracking (Step 3)
 
 - **Edge enhancement**: Highly recommended for better visibility of growth tips
@@ -366,6 +484,21 @@ Results/
 - **Order matters**: Click points in chronological order (frame 0, 1, 2, ...)
 - **Accuracy**: Take your time - accurate clicking = better angle calculations
 - **If you mess up**: Just close napari and restart Step 3 for that seedling
+
+#### napari Navigation and Tools
+
+The **Add Points** tool is selected by default when the tracking window opens. Here's how to navigate:
+
+- **Pan/Move Image**: Click and drag with the mouse (or hold Space + drag)
+- **Zoom In/Out**: Use the scroll wheel (up = zoom in, down = zoom out)
+- **Add Points**: Tool is active by default - simply click to add points
+  - Keyboard shortcut: Press `2` to reactivate add mode
+- **Select/Move Points**: Press `3` to switch to select mode
+  - Drag points to reposition them
+  - Press Delete or Backspace to remove selected points
+- **Switch Between Tools**: Use keyboard shortcuts `2` (add) and `3` (select) to switch between modes
+
+**Workflow tip**: Navigate between frames using the slider, zoom/pan to the growth point, ensure add mode is active (press `2` if needed), then click to mark the landmark. Repeat for each timeframe.
 
 ### Pixel Size
 
@@ -451,7 +584,7 @@ uv run seedling
 #!/bin/bash
 # process_all.sh
 
-for tif in Data/*.tif; do
+for tif in 1_Data/*.tif; do
     echo "Processing $tif"
     python SeedlingNew.py << EOF
 1
@@ -526,7 +659,7 @@ Seedling Tracking Pipeline v5.0
 - Direct TIF stack processing (no JPG conversion needed)
 - Menu-driven interface
 - Integrated alignment, separation, and tracking
-- Automatic folder management (Data/, Processed/, Results/)
+- Automatic folder management (1_Data/, 2_Processed/, 3_Results/)
 - Removed batch analysis (focus on individual seedlings)
 - Removed rotation correction (not needed for most TIF stacks)
 

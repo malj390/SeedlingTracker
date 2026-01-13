@@ -10,9 +10,9 @@ wheels/
 .venv
 
 # Data and Outputs
-Data/
-Processed/
-Results/
+1_Data/
+2_Processed/
+3_Results/
 *.tif
 *.tiff
 *.png
