@@ -36,8 +36,9 @@ def generate_dummy_tif(filename="dummy.tif", num_frames=5, width=512, height=512
     
     # Parameters for the "seedling"
     start_x = width // 2
-    start_y = height - 50
-    growth_speed = 20  # pixels per frame
+    start_y = 50
+    # Calculate speed to span most of the height
+    growth_speed = (height - 100) // (num_frames - 1) if num_frames > 1 else 0
     radius = 10
     
     for t in range(num_frames):
@@ -45,17 +46,17 @@ def generate_dummy_tif(filename="dummy.tif", num_frames=5, width=512, height=512
         noise = np.random.randint(0, 30, (height, width), dtype=np.uint8)
         stack[t] = noise
         
-        # Draw a "growing" line/stem
-        current_height = start_y - (t * growth_speed)
+        # Draw a "growing" line/stem (vertical growth downwards)
+        current_y = start_y + (t * growth_speed)
         
         # Simple raster circle drawing for the tip
         y, x = np.ogrid[:height, :width]
-        mask = ((x - start_x)**2 + (y - current_height)**2) <= radius**2
+        mask = ((x - start_x)**2 + (y - current_y)**2) <= radius**2
         stack[t][mask] = 200  # Bright object
         
         # Draw the "stem" trailing behind
         if t > 0:
-            stem_mask = (np.abs(x - start_x) < radius // 2) & (y > current_height) & (y < start_y)
+            stem_mask = (np.abs(x - start_x) < radius // 2) & (y > start_y) & (y < current_y)
             stack[t][stem_mask] = 150
 
     # Save using tifffile

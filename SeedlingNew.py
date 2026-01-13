@@ -533,8 +533,8 @@ def main():
             pixel_size = input("\nEnter pixel size in mm (default 0.036): ").strip()
             pixel_size = float(pixel_size) if pixel_size else 0.036
             
-            enhance = input("Use edge enhancement? (y/n, default y): ").strip().lower()
-            use_enhancement = enhance != 'n'
+            enhance = input("Use edge enhancement? (y/n, default n): ").strip().lower()
+            use_enhancement = enhance == 'y'
             
             track_seedling_interactive(seedling_path, results_folder, pixel_size, use_enhancement)
         
@@ -560,8 +560,8 @@ def main():
             pixel_size = input("\nEnter pixel size in mm (default 0.036): ").strip()
             pixel_size = float(pixel_size) if pixel_size else 0.036
             
-            enhance = input("Use edge enhancement? (y/n, default y): ").strip().lower()
-            use_enhancement = enhance != 'n'
+            enhance = input("Use edge enhancement? (y/n, default n): ").strip().lower()
+            use_enhancement = enhance == 'y'
             
             for seedling_path in seedling_paths:
                 track_seedling_interactive(seedling_path, results_folder, pixel_size, use_enhancement)
