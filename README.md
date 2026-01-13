@@ -1,0 +1,554 @@
+# Seedling Tracking Pipeline
+
+A streamlined Python script for processing time-lapse TIF stacks of seedlings and tracking growth dynamics.
+
+## Overview
+
+This simplified pipeline processes TIF stacks containing multiple seedlings over time:
+
+- **Step 1**: Load TIF stack, align all timeframes, save to `Processed/`
+- **Step 2**: User draws rectangles to separate individual seedlings, save to `Processed/`
+- **Step 3**: User tracks growth by clicking points in each timeframe, save results to `Results/`
+
+## Features
+
+- 🔄 Automatic timeframe alignment using phase cross-correlation
+- 🌱 Interactive seedling separation with napari rectangles
+- 📊 Growth angle and distance calculations
+- 📈 Visual tracking plots with angle annotations
+- 💾 Export to Excel with tracking data and metrics
+- 🖥️ Simple menu-driven interface
+
+## Requirements
+
+### System Requirements
+
+- Python 3.9+
+- Linux, macOS, or Windows
+- [uv](https://github.com/astral-sh/uv) package manager (recommended)
+
+### Python Dependencies
+
+```toml
+dependencies = [
+    "numpy>=2.0",
+    "pandas>=2.0",
+    "matplotlib>=3.8",
+    "scikit-image>=0.26",
+    "scipy>=1.10",
+    "tifffile>=2023",
+    "tqdm>=4.65",
+    "napari[all]>=0.6",  # For interactive mode
+    "openpyxl>=3.1",     # For Excel export
+]
+```
+
+## Folder Structure
+
+The script expects and creates the following folder structure:
+
+```
+YourProject/
+├── Data/           # Place your raw TIF stacks here (INPUT)
+├── Processed/      # Aligned stacks and separated seedlings (AUTO-CREATED)
+├── Results/        # Excel files and plots (AUTO-CREATED)
+└── SeedlingNew.py  # The script
+```
+
+## Installation
+
+### Using uv (Recommended)
+
+```bash
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Navigate to project directory
+cd /path/to/your/project
+
+# Create and activate virtual environment
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+uv pip install numpy pandas matplotlib scikit-image scipy tifffile tqdm "napari[all]" openpyxl
+```
+
+### Using pip
+
+```bash
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies
+pip install numpy pandas matplotlib scikit-image scipy tifffile tqdm "napari[all]" openpyxl
+```
+
+## Usage
+
+### Quick Start
+
+```bash
+# Activate your environment
+source .venv/bin/activate  # Or: On Windows: .venv\Scripts\activate
+
+# Run the script
+python SeedlingNew.py
+```
+
+The script will present a menu:
+
+The script will present a menu:
+
+```
+======================================================================
+SELECT WORKFLOW:
+  1 - Load and align TIF stack
+  2 - Separate seedlings from aligned stack
+  3 - Track individual seedling
+  4 - Run full pipeline (1 → 2 → 3)
+======================================================================
+```
+
+### Workflow Options
+
+#### Option 1: Load and Align TIF Stack
+
+Loads a TIF stack from `Data/` and aligns all timeframes.
+
+```bash
+# Select option 1
+# Browse to select your TIF stack from Data/ folder
+# Script will save: Processed/{filename}_aligned.tif
+```
+
+**What it does:**
+
+1. Prompts you to select a TIF file from `Data/`
+2. Detects if stack is 3D (t, y, x) or 4D (t, y, x, channels)
+3. Uses frame 0 as reference for alignment
+4. Aligns all other frames using phase cross-correlation
+5. Saves aligned stack to `Processed/`
+
+---
+
+#### Option 2: Separate Seedlings
+
+Opens napari to draw rectangles around seedlings in an aligned stack.
+
+```bash
+# Select option 2
+# Browse to select an aligned TIF from Processed/
+# Draw rectangles in napari
+# Close napari when done
+```
+
+**napari Instructions:**
+
+1. Use the **Shapes** layer (should be active by default)
+2. Draw ONE rectangle around each seedling
+3. You can draw as many rectangles as you have seedlings
+4. Close the napari window when finished
+
+**What it does:**
+
+1. Opens napari with max projection and timeseries
+2. Extracts each rectangle region
+3. Saves separate TIF files: `Processed/{filename}_aligned_seedling_1.tif`, etc.
+
+---
+
+#### Option 3: Track Individual Seedling
+
+Opens napari to track growth by clicking points in each timeframe.
+
+```bash
+# Select option 3
+# Browse to select a seedling TIF from Processed/
+# Enter pixel size (e.g., 0.036 mm)
+# Choose whether to use edge enhancement (recommended: y)
+# Click tracking points in napari
+# Close napari when done
+```
+
+**napari Instructions:**
+
+1. Click ONE point per timeframe
+2. Track a consistent landmark (e.g., root tip, shoot apex)
+3. Work through frames sequentially (0, 1, 2, ...)
+4. Be as consistent as possible with point placement
+
+**What it does:**
+
+1. Loads seedling TIF
+2. Optionally applies Sobel edge enhancement
+3. Rotates image 90° for lateral view
+4. Calculates angles and distances between consecutive points
+5. Saves Excel file: `Results/{seedling_name}.xlsx`
+6. Creates plots: `Results/{seedling_name}_tracking.png` and `.svg`
+
+**Excel Output:**
+
+- **raw_data sheet**: timepoint, y, x, y_mm, x_mm
+- **metrics sheet**: from_timepoint, to_timepoint, segment, angle_degrees, distance_mm
+
+---
+
+#### Option 4: Full Pipeline
+
+Runs all three steps sequentially on one TIF stack.
+
+```bash
+# Select option 4
+# Follow prompts for each step:
+#   1. Select TIF from Data/
+#   2. Draw rectangles in napari
+#   3. Enter pixel size
+#   4. Track each seedling in napari
+```
+
+---
+
+### Example Session
+
+```bash
+$ python SeedlingNew.py
+
+======================================================================
+SEEDLING TRACKING PIPELINE
+======================================================================
+
+Folder structure:
+  Data:      /path/to/project/Data
+  Processed: /path/to/project/Processed
+  Results:   /path/to/project/Results
+
+======================================================================
+SELECT WORKFLOW:
+  1 - Load and align TIF stack
+  2 - Separate seedlings from aligned stack
+  3 - Track individual seedling
+  4 - Run full pipeline (1 → 2 → 3)
+======================================================================
+
+Enter choice (1-4): 4
+
+======================================================================
+RUNNING FULL PIPELINE
+======================================================================
+
+Select TIF stack from Data/ folder...
+# [File dialog opens - select P1_D2017_Trial.tif]
+
+======================================================================
+STEP 1: LOADING AND ALIGNING TIF STACK
+======================================================================
+
+Loading: P1_D2017_Trial.tif
+Stack shape: (50, 1024, 1024)
+Data type: uint8
+Number of timeframes: 50
+
+Aligning all frames to frame 0...
+Aligning: 100%|████████████████████| 50/50 [00:15<00:00,  3.2it/s]
+
+Saving aligned stack to: P1_D2017_Trial_aligned.tif
+✓ Step 1 complete!
+
+======================================================================
+STEP 2: SEPARATING SEEDLINGS
+======================================================================
+
+Opening napari viewer...
+
+Instructions:
+  1. Use the 'Shapes' layer to draw rectangles around each seedling
+  2. Draw ONE rectangle per seedling
+  3. Close the viewer when done
+
+# [napari opens - draw 3 rectangles]
+# [Close napari]
+
+Found 3 seedlings
+  Seedling 1: y=[100:300], x=[50:200]
+  Seedling 2: y=[100:300], x=[250:400]
+  Seedling 3: y=[350:550], x=[50:200]
+
+✓ Step 2 complete! Saved 3 seedlings to Processed/
+
+Enter pixel size in mm (default 0.036): 0.036
+Use edge enhancement? (y/n, default y): y
+
+======================================================================
+STEP 3: TRACKING SEEDLING - P1_D2017_Trial_aligned_seedling_1
+======================================================================
+
+Loading: P1_D2017_Trial_aligned_seedling_1.tif
+Applying Sobel edge enhancement...
+
+Opening napari viewer...
+# [Click points in each frame]
+# [Close napari]
+
+Tracked 50 points
+Calculating growth metrics...
+
+Saving results to: P1_D2017_Trial_aligned_seedling_1.xlsx
+Creating visualization...
+✓ Step 3 complete for P1_D2017_Trial_aligned_seedling_1!
+
+# [Repeats for seedling_2 and seedling_3]
+
+======================================================================
+✓ FULL PIPELINE COMPLETE!
+======================================================================
+```
+
+---
+
+## File Naming Convention
+
+### After Step 1 (Alignment):
+
+```
+Processed/
+└── {original_name}_aligned.tif
+```
+
+### After Step 2 (Separation):
+
+```
+Processed/
+├── {original_name}_aligned.tif
+├── {original_name}_aligned_seedling_1.tif
+├── {original_name}_aligned_seedling_2.tif
+└── ...
+```
+
+### After Step 3 (Tracking):
+
+```
+Results/
+├── {seedling_name}.xlsx
+├── {seedling_name}_tracking.png
+└── {seedling_name}_tracking.svg
+```
+
+---
+
+## Tips and Best Practices
+
+### Image Acquisition
+
+- Use consistent lighting across timepoints
+- Keep camera position fixed
+- Capture at regular time intervals
+- Avoid shadows and reflections
+
+### Alignment (Step 1)
+
+- The script uses frame 0 as reference by default
+- Works best when most of the field of view is stable
+- If alignment fails, check for extreme movements or rotation
+
+### Seedling Separation (Step 2)
+
+- Draw rectangles generously - include some margin around each seedling
+- Make sure seedlings don't overlap in the rectangles
+- You can draw rectangles in any order
+- The max projection helps identify where seedlings are located
+
+### Tracking (Step 3)
+
+- **Edge enhancement**: Highly recommended for better visibility of growth tips
+- **Consistent landmarks**: Always click the same anatomical feature (e.g., root tip)
+- **Order matters**: Click points in chronological order (frame 0, 1, 2, ...)
+- **Accuracy**: Take your time - accurate clicking = better angle calculations
+- **If you mess up**: Just close napari and restart Step 3 for that seedling
+
+### Pixel Size
+
+- Default is 0.036 mm/pixel
+- Measure your actual pixel size using a calibration ruler
+- This affects distance calculations in mm
+
+---
+
+## Troubleshooting
+
+### "napari not available"
+
+```bash
+# Install Qt backend
+uv pip install pyqt5
+
+# Or try PySide6
+uv pip install pyside6
+
+# Then reinstall napari
+uv pip install "napari[all]"
+```
+
+### napari window is blank or frozen
+
+```bash
+# Try a different Qt backend
+pip uninstall pyqt5 pyside6
+pip install pyside6
+```
+
+### "Expected 3D or 4D stack" error
+
+Your TIF file might not be a time-series stack. Check:
+
+```python
+import tifffile
+stack = tifffile.imread("your_file.tif")
+print(stack.shape)  # Should be (time, height, width) or (time, height, width, channels)
+```
+
+### Alignment produces weird results
+
+- Check that your stack actually needs alignment (maybe it's already aligned?)
+- Try aligning to a different reference frame (edit the script)
+- Some stacks have too much movement for phase cross-correlation
+
+### Excel export fails
+
+```bash
+uv pip install openpyxl
+```
+
+### Out of memory errors
+
+- Process seedlings one at a time (use options 1, 2, 3 separately)
+- Reduce TIF stack size before processing
+- Close other applications
+
+---
+
+## Advanced Usage
+
+### Using with uv run
+
+Add to your `pyproject.toml`:
+
+```toml
+[project.scripts]
+seedling = "SeedlingNew:main"
+```
+
+Then run:
+
+```bash
+uv run seedling
+```
+
+### Processing Multiple Files
+
+```bash
+#!/bin/bash
+# process_all.sh
+
+for tif in Data/*.tif; do
+    echo "Processing $tif"
+    python SeedlingNew.py << EOF
+1
+EOF
+done
+```
+
+### Customizing Pixel Size
+
+Edit the script to change the default:
+
+```python
+# Around line 300 in track_seedling_interactive():
+pixel_size_mm: float = 0.036,  # Change this value
+```
+
+### Changing Reference Frame
+
+Edit the script to align to a different frame:
+
+```python
+# In load_and_align_stack():
+reference_frame: int = 0,  # Change to your desired frame number
+```
+
+---
+
+## Output Format
+
+### Excel File Structure
+
+**raw_data sheet:**
+| seedling_name | timepoint | y | x | x_mm | y_mm |
+|---------------|-----------|-----|-----|------|------|
+| seedling_1    | 0         | 150 | 80  | 2.88 | 5.40 |
+| seedling_1    | 1         | 148 | 82  | 2.95 | 5.33 |
+| ...           | ...       | ... | ... | ...  | ...  |
+
+**metrics sheet:**
+| from_timepoint | to_timepoint | segment | angle_degrees | distance_mm | mid_y | mid_x |
+|----------------|--------------|---------|---------------|-------------|-------|-------|
+| 0              | 1            | 0-1     | 35.5          | 0.082       | 149.0 | 81.0  |
+| 1              | 2            | 1-2     | 42.3          | 0.095       | 147.5 | 82.5  |
+| ...            | ...          | ...     | ...           | ...         | ...   | ...   |
+
+### Plot Format
+
+- PNG: High-resolution bitmap (300 DPI) for presentations
+- SVG: Vector format for publications (scalable, editable)
+- Shows trajectory with points labeled by timepoint
+- Angle annotations at midpoints between consecutive points
+- Axes in mm (converted from pixels)
+
+---
+
+## Citation
+
+If you use this pipeline in your research, please cite:
+
+```
+[Your Lab/Publication]
+Seedling Tracking Pipeline v5.0
+```
+
+---
+
+## Changelog
+
+### Version 5.0 (Simplified - Current)
+
+- Completely redesigned for simpler workflow
+- Direct TIF stack processing (no JPG conversion needed)
+- Menu-driven interface
+- Integrated alignment, separation, and tracking
+- Automatic folder management (Data/, Processed/, Results/)
+- Removed batch analysis (focus on individual seedlings)
+- Removed rotation correction (not needed for most TIF stacks)
+
+### Previous Versions
+
+- v4.0: Consolidated three scripts (A, B, C)
+- v3.A: Plate processing
+- v3.B: Seedling tracking
+- v3.C: Batch analysis
+
+---
+
+## Support
+
+For questions or issues:
+
+- Check the troubleshooting section above
+- Review the example session
+- Ensure all dependencies are installed correctly
+
+---
+
+## License
+
+[Specify your license]
