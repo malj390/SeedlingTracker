@@ -214,6 +214,28 @@ python SeedlingNew.py
 
 The script will present a menu:
 
+### Trying it out with Dummy Data
+
+If you don't have your own TIF stacks yet, you can generate synthetic data to test the pipeline:
+
+1. **Generate the dummy data:**
+   
+   ```bash
+   uv run generate_sample_data.py
+   ```
+   
+   This creates `1_Data/dummy.tif` simulating a growing seedling.
+
+2. **Run the pipeline:**
+   
+   ```bash
+   uv run SeedlingNew.py
+   ```
+   
+   - Select **Option 4** (Full Pipeline)
+   - When prompted for a file, select `1_Data/dummy.tif`
+   - Follow the instructions to separate and track the seedling.
+
 ```
 ======================================================================
 SELECT WORKFLOW:
