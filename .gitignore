@@ -10,9 +10,12 @@ wheels/
 .venv
 
 # Data and Outputs
-1_Data/
-2_Processed/
-3_Results/
+1_Data/*
+!1_Data/README.md
+2_Processed/*
+!2_Processed/README.md
+3_Results/*
+!3_Results/README.md
 *.tif
 *.tiff
 *.png
