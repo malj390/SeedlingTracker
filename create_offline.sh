@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # --- CONFIGURACIÓN ---
-OUTPUT_DIR="USB_KIT_WINDOWS/packages"
+OUTPUT_DIR="packages"
 PYTHON_VER="312"  # Ojo: Pon "310" o "311" si tu Python Portable es diferente
 # ---------------------
 
@@ -9,7 +9,7 @@ echo "📦 Preparando kit para Windows desde Pop!_OS..."
 
 # 1. Limpiamos la lista de cosas exclusivas de Linux que podrían colarse
 # (Aunque uv compile --platform windows es listo, a veces se cuelan pexpect/ptyprocess)
-grep -vE "ptyprocess|pexpect|uvloop" requirements_windows.txt > requirements_final.txt
+grep -vE "ptyprocess|pexpect|uvloop" requirements.txt > requirements_win.txt
 
 # 2. Crear carpeta
 mkdir -p "$OUTPUT_DIR"
@@ -19,7 +19,7 @@ mkdir -p "$OUTPUT_DIR"
 echo "⬇️  Descargando archivos .whl para Windows (amd64)..."
 
 pip download \
-    -r requirements_final.txt \
+    -r requirements_win.txt \
     --dest "$OUTPUT_DIR" \
     --platform win_amd64 \
     --python-version "$PYTHON_VER" \
@@ -27,7 +27,7 @@ pip download \
     --no-deps
 
 # 4. Copiar archivos esenciales al KIT
-cp requirements_final.txt "USB_KIT_WINDOWS/"
+# cp requirements_win.txt "USB_KIT_WINDOWS/"
 # Si tienes el codigo aquí, podrías copiarlo también:
 # cp -r mi_carpeta_codigo "USB_KIT_WINDOWS/"
 
