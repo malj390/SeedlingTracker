@@ -406,6 +406,10 @@ def calculate_growth_metrics(data_df: pd.DataFrame) -> pd.DataFrame:
         # Calculate Euclidean distance (mm)
         dist_mm = distance.euclidean([p1['y_mm'], p1['x_mm']], [p2['y_mm'], p2['x_mm']])
         
+        # Calculate speed (mm / timepoint)
+        dt = int(p2['timepoint']) - int(p1['timepoint'])
+        speed = dist_mm / dt if dt > 0 else 0
+        
         # Middle point for labeling
         mid_y = (p1['y'] + p2['y']) / 2
         mid_x = (p1['x'] + p2['x']) / 2
@@ -416,68 +420,62 @@ def calculate_growth_metrics(data_df: pd.DataFrame) -> pd.DataFrame:
             'segment': f"{int(p1['timepoint'])}-{int(p2['timepoint'])}",
             'angle_degrees': angle,
             'distance_mm': dist_mm,
+            'speed_mm_per_frame': speed,
             'mid_y': mid_y,
             'mid_x': mid_x
         })
-    
     return pd.DataFrame(metrics)
-
 
 def plot_tracking_results(data_df: pd.DataFrame, metrics_df: pd.DataFrame,
                           seedling_name: str, pixel_size: float, 
                           results_folder: Path):
     """
-    Create and save a plot showing tracking trajectory with angle annotations.
-    
-    Args:
-        data_df: Raw tracking data
-        metrics_df: Calculated metrics
-        seedling_name: Name of the seedling
-        pixel_size: Pixel size in mm
-        results_folder: Where to save the plot
+    Create and save plots showing tracking trajectory and growth speed over time.
     """
-    fig, ax = plt.subplots(figsize=(15, 6))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
     
-    # Plot trajectory
-    ax.plot(data_df['x'], data_df['y'], 'o-', color='blue', markersize=8, linewidth=2)
+    # --- Plot 1: Trajectory ---
+    ax1.plot(data_df['x'], data_df['y'], 'o-', color='blue', markersize=8, linewidth=2)
     
-    # Add point labels
     for idx, row in data_df.iterrows():
-        ax.text(row['x'] + 2, row['y'] + 2, f"t{int(row['timepoint'])}", 
+        ax1.text(row['x'] + 2, row['y'] + 2, f"t{int(row['timepoint'])}", 
                 fontsize=10, color='darkblue')
     
-    # Add angle annotations
     for _, row in metrics_df.iterrows():
-        ax.text(row['mid_x'], row['mid_y'], f"{int(row['angle_degrees'])}°",
-                fontsize=11, color='red', fontweight='bold',
-                bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.7))
+        ax1.text(row['mid_x'], row['mid_y'], f"{int(row['angle_degrees'])}°",
+                fontsize=9, color='red', fontweight='bold',
+                bbox=dict(boxstyle='round,pad=0.2', facecolor='yellow', alpha=0.6))
     
-    # Formatting
-    ax.set_xlabel("X distance (mm)", fontsize=12)
-    ax.set_ylabel("Y distance (mm)", fontsize=12)
-    ax.set_title(f"{seedling_name} - Growth Tracking", fontsize=14, fontweight='bold')
-    ax.grid(True, alpha=0.3)
-    ax.invert_yaxis()  # Invert Y axis for image coordinates
-    
-    # Convert axes to mm
-    xlocs = ax.get_xticks()
-    xnewlabels = [f"{int(x * pixel_size)}" for x in xlocs]
-    ax.set_xticklabels(xnewlabels)
-    
-    ylocs = ax.get_yticks()
-    ynewlabels = [f"{int(y * pixel_size)}" for y in ylocs]
-    ax.set_yticklabels(ynewlabels)
-    
+    ax1.set_xlabel("X distance (pixels)", fontsize=10)
+    ax1.set_ylabel("Y distance (pixels)", fontsize=10)
+    ax1.set_title(f"{seedling_name} - Growth Trajectory", fontsize=12, fontweight='bold')
+    ax1.grid(True, alpha=0.3)
+    ax1.invert_yaxis()
+
+    # --- Plot 2: Speed vs Timepoint ---
+    if not metrics_df.empty:
+        ax2.plot(metrics_df['to_timepoint'], metrics_df['speed_mm_per_frame'], 
+                's-', color='green', linewidth=2, markersize=6)
+        ax2.set_xlabel("Timepoint", fontsize=10)
+        ax2.set_ylabel("Speed (mm / frame)", fontsize=10)
+        ax2.set_title("Growth Speed Over Time", fontsize=12, fontweight='bold')
+        ax2.grid(True, linestyle='--', alpha=0.7)
+        
+        # Add labels for maximum speed
+        max_speed = metrics_df['speed_mm_per_frame'].max()
+        max_tp = metrics_df.loc[metrics_df['speed_mm_per_frame'].idxmax(), 'to_timepoint']
+        ax2.annotate(f'Peak: {max_speed:.4f} mm/f', 
+                     xy=(max_tp, max_speed), xytext=(5, 5),
+                     textcoords='offset points', color='darkgreen', fontweight='bold')
+
     plt.tight_layout()
     
     # Save
-    plot_path_png = results_folder / f"{seedling_name}_tracking.png"
-    plot_path_svg = results_folder / f"{seedling_name}_tracking.svg"
-    
+    plot_path_png = results_folder / f"{seedling_name}_analysis.png"
+    plot_path_svg = results_folder / f"{seedling_name}_analysis.svg"
+	plt.savefig(plot_path_svg, bbox_inches='tight')
     plt.savefig(plot_path_png, dpi=300, bbox_inches='tight')
-    plt.savefig(plot_path_svg, bbox_inches='tight')
     plt.close()
-
 
 # ============================================================================
 # MAIN WORKFLOW
