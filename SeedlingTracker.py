@@ -473,7 +473,7 @@ def plot_tracking_results(data_df: pd.DataFrame, metrics_df: pd.DataFrame,
     # Save
     plot_path_png = results_folder / f"{seedling_name}_analysis.png"
     plot_path_svg = results_folder / f"{seedling_name}_analysis.svg"
-	plt.savefig(plot_path_svg, bbox_inches='tight')
+    plt.savefig(plot_path_svg, bbox_inches='tight')
     plt.savefig(plot_path_png, dpi=300, bbox_inches='tight')
     plt.close()
 
